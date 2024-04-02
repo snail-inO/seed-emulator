@@ -10,4 +10,4 @@ from .BgpLookingGlassService import BgpLookingGlassServer, BgpLookingGlassServic
 from .DHCPService import DHCPServer, DHCPService
 from .EthereumService import *
 from .ScionBwtestService import ScionBwtestService
-from .Layer2Service import Layer2Service, Layer2Server, Layer2Blockchain
+from .Layer2Service import *

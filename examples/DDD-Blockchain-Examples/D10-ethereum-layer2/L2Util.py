@@ -190,6 +190,20 @@ class L2Util:
                 block_number = new_block_number
 
         
+    def getTx(self, txhash: str, isL2: bool = True):
+        _RPC = self.__l2RPC if isL2 else self.__l1RPC
+        w3 = Web3(Web3.HTTPProvider(_RPC))
+        if not w3.isConnected():
+            print("Failed to connect to RPC")
+            return
+        if _RPC == self.__l1RPC:
+            w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+        print(f"Connected to RPC: {_RPC}")
+        try:
+            tx = w3.eth.get_transaction(txhash)
+            print(json.dumps({k: v.hex() if isinstance(v, HexBytes) else v for k, v in dict(tx).items()}, indent=2))
+        except Exception as e:
+            print(f"Failed to get transaction: {e}")
 
     def _loadConfig() -> typing.Dict[str, int]:
         with open("config.json", "r") as f:
@@ -299,6 +313,14 @@ if __name__ == "__main__":
             sys.argv[4] if len(sys.argv) > 4 else "0x",
             int(sys.argv[5]) if len(sys.argv) > 5 else 1,
         )
+    elif method == "getTx":
+        if len(sys.argv) < 3:
+            print(f"Usage: {sys.argv[0]} getTx <txhash> [isL2: true/false]")
+            sys.exit(1)
+        if len(sys.argv) == 3:
+            l2util.getTx(sys.argv[2])
+        else:
+            l2util.getTx(sys.argv[2], sys.argv[3] == "true")
     else:
         print(f"Unknown method: {method}")
         sys.exit(1)
